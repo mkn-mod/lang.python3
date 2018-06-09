@@ -1,0 +1,30 @@
+
+name: lang.python3
+version: master
+property:
+    maiken_location: ${MKN_HOME}/app/mkn/${version}
+
+parent: base
+src: mod.cpp
+mode: shared
+if_arg:
+    win_shared: -DYAML_CPP_DLL
+    shared: -DKUL_SHARED
+
+profile:
+  - name: base
+    dep:
+      - name: mkn
+        profile: mod
+        local: ${maiken_location}
+
+  - name: test
+    parent: base
+    main: test.cpp
+
+  - name: format
+    mod:
+    - name: clang.format
+      init:
+        style: google
+        paths: .

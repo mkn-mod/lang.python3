@@ -209,7 +209,13 @@ class Python3Module : public maiken::Module {
       }
       std::stringstream lss;
       for(std::string ldf: kul::cli::asArgs(linker)){
-        if(ldf.find("-L") == 0) a.addLibpath(ldf.substr(2));
+        if(ldf.find("-L") == 0) {
+          kul::Dir req_path(ldf.substr(2));
+          if(!req_path)
+            KEXCEPT(kul::Exception, "-L path does not exist ") << req_path;
+          a.addLibpath(req_path.real());
+          for (auto* rep : a.revendencies()) rep->addLibpath(req_path.real());
+        }
         else lss << ldf << " ";
       }
       linker = lss.str();

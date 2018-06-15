@@ -207,6 +207,13 @@ class Python3Module : public maiken::Module {
         kul::String::REPLACE_ALL(linker, "  ", " ");
         kul::String::REPLACE_ALL(linker, "  ", " ");
       }
+      std::stringstream lss;
+      for(std::string ldf: kul::cli::asArgs(linker)){
+        if(ldf.find("-L") == 0) a.addLibpath(ldf.substr(2));
+        else lss << ldf << " ";
+      }
+      linker = lss.str();
+      if(!linker.empty()) linker.pop_back();
       a.prependLinkString(linker);
     }else{
       kul::Dir dPath;

@@ -3,6 +3,7 @@ name: lang.python3
 version: master
 property:
     maiken_location: ${MKN_HOME}/app/mkn/${version}
+    maiken_scm: https://github.com/dekken/maiken
 
 parent: base
 src: mod.cpp
@@ -17,10 +18,13 @@ profile:
       - name: mkn
         profile: mod
         local: ${maiken_location}
+        scm: ${maiken_scm}
 
   - name: test
     parent: base
     main: test.cpp
+    if_arg:
+      win_shared: -DYAML_CPP_DLL
 
   - name: format
     mod:

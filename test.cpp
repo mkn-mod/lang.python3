@@ -1,14 +1,10 @@
 
 
 #include "kul/signal.hpp"
-
+#include "kul/yaml.hpp"
 #include <maiken.hpp>
 
-const std::string yArgs = R"(
-args: args
-with: numpy
-delete: -lintl -ldl -framework -Wl,-stack_size,1000000 CoreFoundation
-)";
+const std::string yArgs = "with: numpy";
 
 int main(int argc, char* argv[]) {
   kul::Signal sig;
@@ -22,8 +18,9 @@ int main(int argc, char* argv[]) {
     loader->module()->link(*app, node);
     loader->module()->pack(*app, node);
     loader->unload();
+    for(const auto inc : app->includes()) KLOG(INF) << inc.first;
   } catch (const kul::Exception& e) {
-    KERR << e.what();
+    KLOG(ERR) << e.what();
     return 2;
   } catch (const std::exception& e) {
     KERR << e.what();

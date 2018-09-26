@@ -199,6 +199,7 @@ class Python3Module : public maiken::Module {
       if (path_var) p.var(path_var->name(), path_var->toString());
       p.start();
       std::string linker(pc.outs());
+      KLOG(INF) << linker;
       linker.pop_back();
       if (node["delete"]) {
         for (const auto with : kul::cli::asArgs(node["delete"].Scalar())) {

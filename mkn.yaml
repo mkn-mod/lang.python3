@@ -3,7 +3,7 @@ name: lang.python3
 version: master
 property:
     maiken_location: ${MKN_HOME}/app/mkn/${version}
-    maiken_scm: https://github.com/dekken/maiken
+    maiken_scm: https://github.com/mkn/mkn
 
 parent: base
 src: mod.cpp

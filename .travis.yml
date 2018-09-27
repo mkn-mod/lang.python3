@@ -1,5 +1,5 @@
 
-language: python
+language: c++
 
 os:
   - osx
@@ -12,5 +12,3 @@ script:
   - mv maiken/mkn .
   - PYTHON=python MKN_LIB_LINK_LIB=1 KLOG=3 ./mkn build -tOa -std=c++14 -d
   - PYTHON=python MKN_LIB_LINK_LIB=1 KLOG=3 ./mkn build -tOa -std=c++14 -p test run -l "-pthread -ldl"
-
-python: "3.7"

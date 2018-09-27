@@ -7,12 +7,10 @@ compiler:
   - clang
 
 script:
-  - pip install --quiet numpy
   - git clone https://github.com/Dekken/maiken -b master --depth 1 maiken
   - make bsd CXX=clang++ -C maiken
   - mv maiken/mkn .
   - PYTHON=python MKN_LIB_LINK_LIB=1 KLOG=3 ./mkn build -tOa -std=c++14 -d
   - PYTHON=python MKN_LIB_LINK_LIB=1 KLOG=3 ./mkn build -tOa -std=c++14 -p test run -l "-pthread -ldl"
 
-python:
-  - "3.7-dev"
+python: "3.7"

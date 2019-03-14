@@ -127,7 +127,8 @@ class Python3Module : public maiken::Module {
         if (path_var) p.var(path_var->name(), path_var->toString());
         p.start();
         auto outs(pc.outs()); outs.pop_back();
-        for(std::string inc: kul::cli::asArgs(outs)){
+        KLOG(DBG) << outs;
+        for(auto inc: kul::cli::asArgs(outs)) {
           if(inc.find("-I") == 0) inc = inc.substr(2);
           incs.push_back(inc);
         }
@@ -199,7 +200,6 @@ class Python3Module : public maiken::Module {
       if (path_var) p.var(path_var->name(), path_var->toString());
       p.start();
       std::string linker(pc.outs());
-      KLOG(INF) << linker;
       linker.pop_back();
       if (node["delete"]) {
         for (const auto with : kul::cli::asArgs(node["delete"].Scalar())) {
@@ -208,19 +208,7 @@ class Python3Module : public maiken::Module {
         kul::String::REPLACE_ALL(linker, "  ", " ");
         kul::String::REPLACE_ALL(linker, "  ", " ");
       }
-      std::stringstream lss;
-      for(std::string ldf: kul::cli::asArgs(linker)){
-        if(ldf.find("-L") == 0) {
-          kul::Dir req_path(ldf.substr(2));
-          if(!req_path)
-            KEXCEPT(kul::Exception, "-L path does not exist ") << req_path;
-          a.addLibpath(req_path.real());
-          for (auto* rep : a.revendencies()) rep->addLibpath(req_path.real());
-        }
-        else lss << ldf << " ";
-      }
-      linker = lss.str();
-      if(!linker.empty()) linker.pop_back();
+      KLOG(DBG) << linker;
       a.prependLinkString(linker);
     }else{
       kul::Dir dPath;

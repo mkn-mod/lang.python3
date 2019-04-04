@@ -21,10 +21,13 @@ profile:
         scm: ${maiken_scm}
 
   - name: test
-    parent: base
+    mod:
+    - name: lang.python3
+      compile:
+        with: numpy
     main: test.cpp
-    if_arg:
-      win_shared: -DYAML_CPP_DLL
+
+
 
   - name: format
     mod:

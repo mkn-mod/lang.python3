@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define KUL_EXPORT
 #undef _KUL_DEFS_HPP_
 #include "kul/defs.hpp"
+#include "kul/string.hpp"
 
 #include <unordered_set>
 
@@ -201,11 +202,14 @@ class Python3Module : public maiken::Module {
       p.start();
       std::string linker(pc.outs());
       linker.pop_back();
+      KLOG(DBG) << node["delete"];
       if (node["delete"]) {
-        for (const auto with : kul::cli::asArgs(node["delete"].Scalar())) {
-          kul::String::REPLACE_ALL(linker, with, "");
-        }
+        KLOG(DBG) << node["delete"].Scalar();
         kul::String::REPLACE_ALL(linker, "  ", " ");
+        for (const auto del : kul::String::SPLIT(node["delete"].Scalar(), " ")) {
+          KLOG(DBG) << del;
+          kul::String::REPLACE_ALL(linker, del, "");
+        }
         kul::String::REPLACE_ALL(linker, "  ", " ");
       }
       KLOG(DBG) << linker;

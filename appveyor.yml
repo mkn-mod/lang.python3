@@ -26,8 +26,8 @@ cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 build_script:
+  - curl -o mkn.exe -L https://github.com/Dekken/maiken/raw/binaries/win10_x64/mkn.exe
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-  - curl -o mkn.exe -L https://ci.appveyor.com/api/projects/dekken/maiken/artifacts/bin/build/mkn.exe
   - mkdir -p "C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\cppwinrt"
   - SET MKN_CL_PREFERRED=1
   - C:\Python36-x64\Scripts\pip install numpy

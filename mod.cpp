@@ -124,7 +124,6 @@ class Python3Module : public maiken::Module {
         if (path_var) p.var(path_var->name(), path_var->toString());
         p.start();
         auto outs(pc.outs()); outs.pop_back();
-        KLOG(DBG) << outs;
         for(auto inc: kul::cli::asArgs(outs)) {
           if(inc.find("-I") == 0) inc = inc.substr(2);
           incs.push_back(inc);
@@ -198,17 +197,12 @@ class Python3Module : public maiken::Module {
       p.start();
       std::string linker(pc.outs());
       linker.pop_back();
-      KLOG(DBG) << node["delete"];
       if (node["delete"]) {
-        KLOG(DBG) << node["delete"].Scalar();
         kul::String::REPLACE_ALL(linker, "  ", " ");
-        for (const auto del : kul::String::SPLIT(node["delete"].Scalar(), " ")) {
-          KLOG(DBG) << del;
+        for (const auto del : kul::String::SPLIT(node["delete"].Scalar(), " "))
           kul::String::REPLACE_ALL(linker, del, "");
-        }
         kul::String::REPLACE_ALL(linker, "  ", " ");
       }
-      KLOG(DBG) << linker;
       a.prependLinkString(linker);
     }else{
       kul::Dir dPath;

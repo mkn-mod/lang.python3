@@ -8,30 +8,20 @@ property:
 parent: base
 src: mod.cpp
 mode: shared
-if_arg:
-    win_shared: -DYAML_CPP_DLL
-    shared: -DKUL_SHARED
 
 profile:
-  - name: base
-    dep:
-      - name: mkn
-        profile: mod
-        local: ${maiken_location}
-        scm: ${maiken_scm}
+- name: base
+  dep: mkn&${maiken_location}(${maiken_scm})[mod]
+  if_arg:
+      win_shared: -DYAML_CPP_DLL
+      shared: -DKUL_SHARED
 
-  - name: test
-    mod:
-    - name: lang.python3
-      compile:
-        with: numpy
-    main: test.cpp
+- name: test
+  parent: base
+  main: test.cpp
+  mod: |
+    lang.python3{compile:{with: numpy}}
 
-
-
-  - name: format
-    mod:
-    - name: clang.format
-      init:
-        style: google
-        paths: .
+- name: format
+  mod: |
+    clang.format{init:{style: google, paths: .}}

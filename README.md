@@ -2,6 +2,8 @@
 
 ** python3 maiken module **
 
+[![Travis](https://travis-ci.org/mkn-mod/lang.python3.svg?branch=master)](https://travis-ci.org/mkn-mod/lang.python3)
+
 Compile/Link phase module
 
 ## Prerequisites

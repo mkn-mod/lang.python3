@@ -7,7 +7,7 @@ branches:
 max_jobs: 1
 
 image:
-- Visual Studio 2017
+- Visual Studio 2019
 
 init:
   - git config --global core.autocrlf input
@@ -26,10 +26,10 @@ cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 build_script:
-  - curl -o mkn.exe -L https://github.com/Dekken/maiken/raw/binaries/win10_x64/mkn.exe
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-  - mkdir -p "C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\cppwinrt"
+  - SET PATH=C:\Program Files\Git\usr\bin;%PATH%
   - SET MKN_CL_PREFERRED=1
+  - curl -o mkn.exe -L https://github.com/Dekken/maiken/raw/binaries/win10_x64/mkn.exe
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
   - C:\Python36-x64\Scripts\pip install numpy
   - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -dtO"
   - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -tOp test run"

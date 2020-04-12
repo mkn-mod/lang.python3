@@ -37,5 +37,5 @@ script:
     python3 -m pip install pip --upgrade --user
     python3 -m pip install numpy --upgrade --user
     export MKN_LIB_LINK_LIB="1" export KLOG="3" CC CXX
-    ./mkn build -tOa "-fPIC -std=c++14" -d
-    ./mkn build -tOa "-fPIC -std=c++14" -p test run -l "-pthread -ldl"
+    ./mkn build -tOa "-fPIC -std=c++17" -d
+    ./mkn build -tOa "-fPIC -std=c++17" -p test run -l "-pthread -ldl"

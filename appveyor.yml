@@ -31,5 +31,5 @@ build_script:
   - curl -o mkn.exe -L https://github.com/Dekken/maiken/raw/binaries/win10_x64/mkn.exe
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
   - C:\Python36-x64\Scripts\pip install numpy
-  - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -dtO"
-  - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -tOp test run"
+  - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -dtOa -std:c++17"
+  - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -tOp test run -a -std:c++17"

@@ -1,3 +1,4 @@
+#! clean build -g 0 -W 9 -O 9
 
 name: lang.python3
 version: master

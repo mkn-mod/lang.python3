@@ -31,6 +31,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "maiken/module/init.hpp"
 #include "kul/string.hpp"
 
+#include <memory>
+#include <vector>
+#include <cassert>
 #include <unordered_set>
 
 namespace mkn {
@@ -51,6 +54,27 @@ class Python3Module : public maiken::Module {
   std::shared_ptr<kul::cli::EnvVar> path_var;
 
  protected:
+  static std::vector<uint16_t> MajMin(std::string const& PY){
+
+    std::vector<uint16_t> version(2);
+
+    for(auto const& idx : {0, 1}){
+      kul::Process p(PY);
+      kul::ProcessCapture pc(p);
+      std::string print{"\"import sys; print(sys.version_info[" + std::to_string(idx)+ "])\""};
+      p << "-c" << print;
+      p.start();
+
+      auto out = kul::String::LINES(pc.outs())[0];
+      kul::String::TRIM(out);
+
+      version[idx] = kul::String::UINT16(out);
+    }
+
+    return version;
+  }
+
+
   static void VALIDATE_NODE(const YAML::Node& node) {
     using namespace kul::yaml;
     Validator({
@@ -189,11 +213,16 @@ class Python3Module : public maiken::Module {
       KTHROW(std::exception) override {
     VALIDATE_NODE(node);
     if(pyconfig_found) {
+      auto version = MajMin(PY);
+
       kul::os::PushDir pushd(a.project().dir());
       kul::Process p(PY3_CONFIG);
       kul::ProcessCapture pc(p);
       p << "--ldflags";
+
       if (path_var) p.var(path_var->name(), path_var->toString());
+      if (version[0] >= 3 and version[1] >= 8) p << "--embed";
+
       p.start();
       std::string linker(pc.outs());
       linker.pop_back();

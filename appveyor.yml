@@ -32,4 +32,4 @@ build_script:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
   - C:\Python36-x64\Scripts\pip install numpy
   - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -dtOa -std:c++17"
-  - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -tOp test run -a -std:c++17"
+  - bash -c "PATH=\"$PWD:/c/Python36-x64/:/c/Program Files/Git/usr/bin:$PATH\"; KLOG=3 ./mkn clean build -tOpa -std:c++17 test run"

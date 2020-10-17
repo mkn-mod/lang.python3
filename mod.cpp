@@ -61,13 +61,12 @@ class Python3Module : public maiken::Module {
     for(auto const& idx : {0, 1}){
       kul::Process p(PY);
       kul::ProcessCapture pc(p);
-      std::string print{"\"import sys; print(sys.version_info[" + std::to_string(idx)+ ")\""};
+      std::string print{"\"import sys; print(sys.version_info[" + std::to_string(idx)+ "])\""};
       p << "-c" << print;
+      p.start();
 
       auto out = pc.outs();
       kul::String::TRIM(out);
-
-      assert(out.size() == 1);
 
       version[idx] = kul::String::UINT16(pc.outs());
     }

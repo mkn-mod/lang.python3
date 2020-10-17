@@ -65,6 +65,8 @@ class Python3Module : public maiken::Module {
       p << "-c" << print;
 
       auto out = pc.outs();
+      kul::String::TRIM(out);
+
       assert(out.size() == 1);
 
       version[idx] = kul::String::UINT16(pc.outs());

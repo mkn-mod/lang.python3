@@ -221,7 +221,7 @@ class Python3Module : public maiken::Module {
       p << "--ldflags";
 
       if (path_var) p.var(path_var->name(), path_var->toString());
-      if (version[0] >= 3 and version[1] >= 8) p << "--embed";
+      if (version[0] >= 3 && version[1] >= 8) p << "--embed";
 
       p.start();
       std::string linker(pc.outs());

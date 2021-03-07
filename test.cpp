@@ -3,7 +3,7 @@
 #include "kul/yaml.hpp"
 #include <maiken.hpp>
 
-const std::string yArgs = "with: numpy";
+const std::string yArgs = "";
 
 int main(int argc, char* argv[]) {
     kul::Signal sig;

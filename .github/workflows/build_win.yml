@@ -18,15 +18,14 @@ jobs:
         name: mkn
         branch: master
         workflow: build_win.yml
-        repo: Dekken/maiken
-
-    - uses: allenevans/set-env@v1.0.0
-      with:
-        MKN_CL_PREFERRED: 1
+        repo: mkn/maiken
 
     - name: "Build/Test"
       shell: cmd
+      env:
+        MKN_CL_PREFERRED: 1
       run: | # /bin/link interferes with cl/link.exe
         bash -c "rm /bin/link"
         call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-        bash -c 'KLOG=3 ./mkn clean build run -dtKOp test -a "-EHsc -std:c++17"'
+        bash -c 'KLOG=2 ./mkn clean build run -dtKOa "-EHsc -std:c++17"'
+        bash -c 'KLOG=2 ./mkn clean build run -dtKOp test -a "-EHsc -std:c++17"'

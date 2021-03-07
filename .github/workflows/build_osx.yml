@@ -18,9 +18,10 @@ jobs:
         name: mkn
         branch: master
         workflow: build_osx.yml
-        repo: Dekken/maiken
+        repo: mkn/maiken
 
     - name: "Build/Test" # contains slash so use quotes otherwise UB
       run: |
         chmod +x mkn
-        KLOG=3 ./mkn clean build run -dtOp test -a "-std=c++17 -fPIC"
+        KLOG=2 ./mkn clean build run -dtOa "-std=c++17 -fPIC"
+        KLOG=2 ./mkn clean build run -dtOp test -a "-std=c++17 -fPIC"

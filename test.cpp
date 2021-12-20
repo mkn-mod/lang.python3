@@ -1,14 +1,14 @@
 
-#include "kul/signal.hpp"
-#include "kul/yaml.hpp"
+#include "mkn/kul/signal.hpp"
+#include "mkn/kul/yaml.hpp"
 #include <maiken.hpp>
 
-const std::string yArgs = "";
+std::string const yArgs = "";
 
 int main(int argc, char* argv[]) {
-    kul::Signal sig;
+    mkn::kul::Signal sig;
     try {
-        YAML::Node node = kul::yaml::String(yArgs).root();
+        YAML::Node node = mkn::kul::yaml::String(yArgs).root();
         char* argv2[2] = {argv[0], (char*)"-O"};
         char* argv3[3] = {argv[0], (char*)"-Op", (char*)"test"};
         auto app = (maiken::Application::CREATE(2, argv2))[0];
@@ -19,10 +19,10 @@ int main(int argc, char* argv[]) {
         loader->module()->link(*appTest, node);
         loader->module()->pack(*appTest, node);
         loader->unload();
-    } catch (const kul::Exception& e) {
+    } catch (mkn::kul::Exception const& e) {
         KLOG(ERR) << e.what();
         return 2;
-    } catch (const std::exception& e) {
+    } catch (std::exception const& e) {
         KERR << e.what();
         return 3;
     } catch (...) {

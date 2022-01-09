@@ -75,7 +75,7 @@ class Python3Module : public maiken::Module {
   }
 
 
-  static void VALIDATE_NODE(const YAML::Node& node) {
+  static void VALIDATE_NODE(YAML::Node const& node) {
     using namespace mkn::kul::yaml;
     Validator({
                   NodeValidator("args"),
@@ -87,7 +87,7 @@ class Python3Module : public maiken::Module {
   }
 
  public:
-  void init(maiken::Application& a, const YAML::Node& node)
+  void init(maiken::Application& a, YAML::Node const& node)
       KTHROW(std::exception) override {
     bool finally = 0;
     if(!kul::env::WHICH(PY.c_str())) PY = "python";
@@ -135,7 +135,7 @@ class Python3Module : public maiken::Module {
     if(finally) exit(2);
   }
 
-  void compile(maiken::Application& a, const YAML::Node& node)
+  void compile(maiken::Application& a, YAML::Node const& node)
       KTHROW(std::exception) override {
     VALIDATE_NODE(node);
     mkn::kul::os::PushDir pushd(a.project().dir());

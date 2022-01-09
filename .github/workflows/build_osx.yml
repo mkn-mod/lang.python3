@@ -20,7 +20,9 @@ jobs:
         workflow: build_osx.yml
         repo: mkn/maiken
 
-    - name: "Build/Test" # contains slash so use quotes otherwise UB
+    - env:
+        MKN_LIB_LINK_LIB: 1
+        KUL_GIT_CO: --depth 1
       run: |
         chmod +x mkn
         KLOG=2 ./mkn clean build run -dtOa "-std=c++17 -fPIC"

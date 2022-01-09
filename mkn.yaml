@@ -20,8 +20,7 @@ profile:
 - name: test
   parent: base
   main: test.cpp
-  mod: |
-    lang.python3{compile:{with: numpy}}
+  dep: mkn&${maiken_location}(${maiken_scm})[lib]
 
 - name: format
   mod: |

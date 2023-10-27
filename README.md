@@ -51,3 +51,8 @@ mod:
     Type            string
     Default         ""
     Description     If set - looks for python3/config in $PYTHON3_HOME/bin
+
+    Key             MKN_PYTHON_LIB_EMBED
+    Type            bool
+    Default         "false/0"
+    Description     Embed library in link e.g. (python3-config --embed)

@@ -221,7 +221,9 @@ class Python3Module : public maiken::Module {
       p << "--ldflags";
 
       if (path_var) p.var(path_var->name(), path_var->toString());
-      if (version[0] >= 3 && version[1] >= 8) p << "--embed";
+
+      auto embed = PYTHON = mkn::kul::env::GET("MKN_PYTHON_LIB_EMBED", "0");
+      if (mkn::kul::String::BOOL(embed)) p << "--embed";
 
       p.start();
       std::string linker(pc.outs());

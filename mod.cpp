@@ -31,10 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "maiken/module/init.hpp"
 #include "mkn/kul/string.hpp"
 
-#include <memory>
-#include <vector>
 #include <cassert>
+#include <memory>
 #include <unordered_set>
+#include <vector>
 
 namespace mkn {
 namespace lang {
@@ -42,26 +42,24 @@ namespace lang {
 class Python3Module : public maiken::Module {
  private:
 #if defined(_WIN32)
-  const bool config_expected = 0;
+  bool const config_expected = 0;
 #else
-  const bool config_expected = 1;
+  bool const config_expected = 1;
 #endif
   bool pyconfig_found = 0;
-  std::string HOME, PY = "python3", PYTHON,
-              PY_CONFIG = "python-config", PY3_CONFIG = "python3-config",
-              PATH = mkn::kul::env::GET("PATH");
+  std::string HOME, PY = "python3", PYTHON, PY_CONFIG = "python-config",
+                    PY3_CONFIG = "python3-config", PATH = mkn::kul::env::GET("PATH");
   mkn::kul::Dir bin;
   std::shared_ptr<kul::cli::EnvVar> path_var;
 
  protected:
-  static std::vector<uint16_t> MajMin(std::string const& PY){
-
+  static std::vector<uint16_t> MajMin(std::string const& PY) {
     std::vector<uint16_t> version(2);
 
-    for(auto const& idx : {0, 1}){
+    for (auto const& idx : {0, 1}) {
       mkn::kul::Process p(PY);
       mkn::kul::ProcessCapture pc(p);
-      std::string print{"\"import sys; print(sys.version_info[" + std::to_string(idx)+ "])\""};
+      std::string print{"\"import sys; print(sys.version_info[" + std::to_string(idx) + "])\""};
       p << "-c" << print;
       p.start();
 
@@ -73,7 +71,6 @@ class Python3Module : public maiken::Module {
 
     return version;
   }
-
 
   static void VALIDATE_NODE(YAML::Node const& node) {
     using namespace mkn::kul::yaml;
@@ -87,14 +84,13 @@ class Python3Module : public maiken::Module {
   }
 
  public:
-  void init(maiken::Application& a, YAML::Node const& node)
-      KTHROW(std::exception) override {
+  void init(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) override {
     bool finally = 0;
-    if(!kul::env::WHICH(PY.c_str())) PY = "python";
+    if (!kul::env::WHICH(PY.c_str())) PY = "python";
     PYTHON = mkn::kul::env::GET("PYTHON");
     if (!PYTHON.empty()) PY = PYTHON;
 #if defined(_WIN32)
-    if(PY.rfind(".exe") == std::string::npos) PY += ".exe";
+    if (PY.rfind(".exe") == std::string::npos) PY += ".exe";
 #endif
     mkn::kul::Process p(PY);
     mkn::kul::ProcessCapture pc(p);
@@ -107,67 +103,68 @@ class Python3Module : public maiken::Module {
       bin = mkn::kul::Dir("bin", HOME);
       if (!bin) KEXCEPT(kul::Exception, "$PYTHON3_HOME/bin does not exist");
 #endif
-      path_var = std::make_shared<kul::cli::EnvVar>("PATH", bin.real(),
-                                                    mkn::kul::cli::EnvVarMode::PREP);
+      path_var =
+          std::make_shared<kul::cli::EnvVar>("PATH", bin.real(), mkn::kul::cli::EnvVarMode::PREP);
       mkn::kul::env::SET(path_var->name(), path_var->toString().c_str());
       p.var(path_var->name(), path_var->toString());
     };
     pyconfig_found = mkn::kul::env::WHICH(PY3_CONFIG.c_str());
-    if(!pyconfig_found) {
+    if (!pyconfig_found) {
       pyconfig_found = mkn::kul::env::WHICH(PY_CONFIG.c_str());
       PY3_CONFIG = PY_CONFIG;
     }
     try {
-      if(!pyconfig_found && config_expected){
+      if (!pyconfig_found && config_expected) {
         finally = 1;
         KEXCEPT(kul::Exception, "python-config does not exist on path");
       }
       p << "-c"
         << "\"import sys; print(sys.version_info[0])\"";
       p.start();
-    } catch (const mkn::kul::Exception& e) {
+    } catch (mkn::kul::Exception const& e) {
       KERR << e.stack();
-    } catch (const std::exception& e) {
+    } catch (std::exception const& e) {
       KERR << e.what();
     } catch (...) {
       KERR << "UNKNOWN ERROR CAUGHT";
     }
-    if(finally) exit(2);
+    if (finally) exit(2);
   }
 
-  void compile(maiken::Application& a, YAML::Node const& node)
-      KTHROW(std::exception) override {
+  void compile(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) override {
     VALIDATE_NODE(node);
     mkn::kul::os::PushDir pushd(a.project().dir());
     std::vector<std::string> incs;
     try {
-      if(pyconfig_found){
+      if (pyconfig_found) {
         mkn::kul::Process p(PY3_CONFIG);
         mkn::kul::ProcessCapture pc(p);
         p << "--includes";
         if (path_var) p.var(path_var->name(), path_var->toString());
         p.start();
-        auto outs(pc.outs()); outs.pop_back();
-        for(auto inc: mkn::kul::cli::asArgs(outs)) {
-          if(inc.find("-I") == 0) inc = inc.substr(2);
+        auto outs(pc.outs());
+        outs.pop_back();
+        for (auto inc : mkn::kul::cli::asArgs(outs)) {
+          if (inc.find("-I") == 0) inc = inc.substr(2);
           incs.push_back(inc);
         }
-      }else{
+      } else {
         mkn::kul::Dir dInc;
-        if(path_var){
+        if (path_var) {
           dInc = mkn::kul::Dir("include", bin.parent());
-          if(!dInc)
+          if (!dInc)
             dInc = mkn::kul::Dir("include", mkn::kul::File(kul::env::WHERE(PY.c_str())).dir());
-        }else{
+        } else {
           dInc = mkn::kul::Dir("include", mkn::kul::File(kul::env::WHERE(PY.c_str())).dir());
         }
-        if(!dInc) KEXCEPT(kul::Exception, "$PYTHON3_HOME/include does not exist")
-           << mkn::kul::os::EOL() << dInc.path();
+        if (!dInc)
+          KEXCEPT(kul::Exception, "$PYTHON3_HOME/include does not exist")
+              << mkn::kul::os::EOL() << dInc.path();
         incs.push_back(dInc.real());
       }
-    } catch (const mkn::kul::Exception& e) {
+    } catch (mkn::kul::Exception const& e) {
       KERR << e.stack();
-    } catch (const std::exception& e) {
+    } catch (std::exception const& e) {
       KERR << e.what();
     } catch (...) {
       KERR << "UNKNOWN ERROR CAUGHT";
@@ -175,10 +172,9 @@ class Python3Module : public maiken::Module {
 
     try {
       if (node["with"]) {
-        for (const auto with : mkn::kul::cli::asArgs(node["with"].Scalar())) {
+        for (auto const with : mkn::kul::cli::asArgs(node["with"].Scalar())) {
           std::stringstream import;
-          import << "\"import " << with << "; print(" << with
-                 << ".get_include())\"";
+          import << "\"import " << with << "; print(" << with << ".get_include())\"";
           mkn::kul::Process p(PY);
           mkn::kul::ProcessCapture pc(p);
           p << "-c" << import.str();
@@ -192,12 +188,11 @@ class Python3Module : public maiken::Module {
           incs.push_back(outs);
         }
       }
-      for(const auto inc: incs){
+      for (auto const inc : incs) {
         mkn::kul::Dir req_include(inc);
         if (req_include) {
           a.addInclude(req_include.real());
-          for (auto* rep : a.revendencies())
-            rep->addInclude(req_include.real());
+          for (auto* rep : a.revendencies()) rep->addInclude(req_include.real());
         }
       }
     } catch (mkn::kul::Exception const& e) {
@@ -209,10 +204,9 @@ class Python3Module : public maiken::Module {
     }
   }
 
-  void link(maiken::Application& a, YAML::Node const& node)
-      KTHROW(std::exception) override {
+  void link(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) override {
     VALIDATE_NODE(node);
-    if(pyconfig_found) {
+    if (pyconfig_found) {
       auto version = MajMin(PY);
 
       mkn::kul::os::PushDir pushd(a.project().dir());
@@ -234,17 +228,17 @@ class Python3Module : public maiken::Module {
           mkn::kul::String::REPLACE_ALL(linker, del, "");
         mkn::kul::String::REPLACE_ALL(linker, "  ", " ");
       }
-      a.prependLinkString(linker);
-    }else{
+      if (a.mode() == maiken::compiler::Mode::SHAR) a.prependLinkString(linker);
+    } else {
       mkn::kul::Dir dPath;
-      if(path_var){
+      if (path_var) {
 #if defined(_WIN32)
         dPath = mkn::kul::Dir("libs", bin);
 #endif
-      }else{
+      } else {
         dPath = mkn::kul::Dir("libs", mkn::kul::File(kul::env::WHERE(PY.c_str())).dir());
       }
-      if(!dPath) KEXCEPT(kul::Exception, "$PYTHON3_HOME/libs does not exist");
+      if (!dPath) KEXCEPT(kul::Exception, "$PYTHON3_HOME/libs does not exist");
       a.addLibpath(dPath.real());
     }
   }
@@ -256,6 +250,4 @@ extern "C" KUL_PUBLISH maiken::Module* maiken_module_construct() {
   return new mkn::lang::Python3Module;
 }
 
-extern "C" KUL_PUBLISH void maiken_module_destruct(maiken::Module* p) {
-  delete p;
-}
+extern "C" KUL_PUBLISH void maiken_module_destruct(maiken::Module* p) { delete p; }

@@ -31,10 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "maiken/module/init.hpp"
 #include "mkn/kul/string.hpp"
 
-#include <cassert>
 #include <memory>
-#include <unordered_set>
 #include <vector>
+#include <cassert>
+#include <unordered_set>
 
 namespace mkn {
 namespace lang {

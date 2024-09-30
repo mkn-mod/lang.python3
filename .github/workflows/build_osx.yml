@@ -10,13 +10,13 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - env:
         MKN_LIB_LINK_LIB: 1
         KUL_GIT_CO: --depth 1
       run: |
-        curl -Lo mkn https://github.com/mkn/mkn/releases/download/latest/mkn_osx
+        curl -Lo mkn https://github.com/mkn/mkn/releases/download/latest/mkn_arm_osx
         chmod +x mkn
         KLOG=2 ./mkn clean build run -dtOa "-std=c++17 -fPIC"
         KLOG=2 ./mkn clean build run -dtOp test -a "-std=c++17 -fPIC"

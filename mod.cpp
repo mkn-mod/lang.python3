@@ -33,8 +33,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 #include <vector>
-#include <cassert>
-#include <unordered_set>
 
 namespace mkn {
 namespace lang {
@@ -228,7 +226,7 @@ class Python3Module : public maiken::Module {
           mkn::kul::String::REPLACE_ALL(linker, del, "");
         mkn::kul::String::REPLACE_ALL(linker, "  ", " ");
       }
-      if (a.mode() == maiken::compiler::Mode::SHAR) a.prependLinkString(linker);
+      if (a.mode() != maiken::compiler::Mode::STAT) a.prependLinkString(linker);
     } else {
       mkn::kul::Dir dPath;
       if (path_var) {

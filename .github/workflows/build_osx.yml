@@ -14,9 +14,9 @@ jobs:
 
     - env:
         MKN_LIB_LINK_LIB: 1
-        KUL_GIT_CO: --depth 1
+        MKN_KUL_GIT_CO: --depth 1
       run: |
-        curl -Lo mkn https://github.com/mkn/mkn/releases/download/latest/mkn_arm_osx
+        curl -fL --retry 3 --retry-delay 2 -o mkn https://github.com/mkn/mkn/releases/download/latest/mkn_arm_osx
         chmod +x mkn
         KLOG=2 ./mkn clean build run -dtOa "-std=c++17 -fPIC"
         KLOG=2 ./mkn clean build run -dtOp test -a "-std=c++17 -fPIC"

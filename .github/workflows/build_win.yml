@@ -18,7 +18,7 @@ jobs:
         arch: amd64
 
     - env:
-        KUL_GIT_CO: --depth 1
+        MKN_KUL_GIT_CO: --depth 1
         MKN_CL_PREFERRED: 1
       shell: cmd
       run: | # /bin/link interferes with cl/link.exe

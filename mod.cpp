@@ -57,8 +57,7 @@ class Python3Module : public maiken::Module {
     for (auto const& idx : {0, 1}) {
       kul::Process p(PY);
       kul::ProcessCapture pc(p);
-      std::string print{"\"import sys; print(sys.version_info[" +
-                        std::to_string(idx) + "])\""};
+      std::string print{"\"import sys; print(sys.version_info[" + std::to_string(idx) + "])\""};
       p << "-c" << print;
       p.start();
 
@@ -83,8 +82,7 @@ class Python3Module : public maiken::Module {
   }
 
  public:
-  void init(maiken::Application& a, YAML::Node const& node)
-      KTHROW(std::exception) override {
+  void init(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) override {
     bool finally = 0;
     if (!kul::env::WHICH(PY.c_str())) PY = "python";
     PYTHON = kul::env::GET("PYTHON");
@@ -103,8 +101,7 @@ class Python3Module : public maiken::Module {
       bin = kul::Dir("bin", HOME);
       if (!bin) KEXCEPT(kul::Exception, "$PYTHON3_HOME/bin does not exist");
 #endif
-      path_var = std::make_shared<kul::cli::EnvVar>("PATH", bin.real(),
-                                                    kul::cli::EnvVarMode::PREP);
+      path_var = std::make_shared<kul::cli::EnvVar>("PATH", bin.real(), kul::cli::EnvVarMode::PREP);
       kul::env::SET(path_var->name(), path_var->toString().c_str());
       p.var(path_var->name(), path_var->toString());
     };
@@ -131,8 +128,7 @@ class Python3Module : public maiken::Module {
     if (finally) exit(2);
   }
 
-  void compile(maiken::Application& a, YAML::Node const& node)
-      KTHROW(std::exception) override {
+  void compile(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) override {
     VALIDATE_NODE(node);
     kul::os::PushDir pushd(a.project().dir());
     std::vector<std::string> incs;
@@ -153,12 +149,9 @@ class Python3Module : public maiken::Module {
         kul::Dir dInc;
         if (path_var) {
           dInc = kul::Dir("include", bin.parent());
-          if (!dInc)
-            dInc = kul::Dir("include",
-                            kul::File(kul::env::WHERE(PY.c_str())).dir());
+          if (!dInc) dInc = kul::Dir("include", kul::File(kul::env::WHERE(PY.c_str())).dir());
         } else {
-          dInc =
-              kul::Dir("include", kul::File(kul::env::WHERE(PY.c_str())).dir());
+          dInc = kul::Dir("include", kul::File(kul::env::WHERE(PY.c_str())).dir());
         }
         if (!dInc)
           KEXCEPT(kul::Exception, "$PYTHON3_HOME/include does not exist")
@@ -177,8 +170,7 @@ class Python3Module : public maiken::Module {
       if (node["with"]) {
         for (auto const with : kul::cli::asArgs(node["with"].Scalar())) {
           std::stringstream import;
-          import << "\"import " << with << "; print(" << with
-                 << ".get_include())\"";
+          import << "\"import " << with << "; print(" << with << ".get_include())\"";
           kul::Process p(PY);
           kul::ProcessCapture pc(p);
           p << "-c" << import.str();
@@ -196,8 +188,7 @@ class Python3Module : public maiken::Module {
         kul::Dir req_include(inc);
         if (req_include) {
           a.addInclude(req_include.real());
-          for (auto* rep : a.revendencies())
-            rep->addInclude(req_include.real());
+          for (auto* rep : a.revendencies()) rep->addInclude(req_include.real());
         }
       }
     } catch (kul::Exception const& e) {
@@ -219,8 +210,7 @@ class Python3Module : public maiken::Module {
     return ret;
   };
 
-  void link(maiken::Application& a, YAML::Node const& node)
-      KTHROW(std::exception) override {
+  void link(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) override {
     VALIDATE_NODE(node);
     if (pyconfig_found) {
       auto version = MajMin(PY);
@@ -232,8 +222,7 @@ class Python3Module : public maiken::Module {
 
       if (path_var) p.var(path_var->name(), path_var->toString());
 
-      auto const embed =
-          kul::String::BOOL(kul::env::GET("MKN_PYTHON_LIB_EMBED", "0"));
+      auto const embed = kul::String::BOOL(kul::env::GET("MKN_PYTHON_LIB_EMBED", "0"));
       if (embed) p << "--embed";
 
       p.start();
@@ -284,10 +273,8 @@ class Python3Module : public maiken::Module {
 }  // namespace lang
 }  // namespace mkn
 
-extern "C" KUL_PUBLISH maiken::Module* maiken_module_construct() {
+extern "C" MKN_KUL_PUBLISH maiken::Module* maiken_module_construct() {
   return new mkn::lang::Python3Module;
 }
 
-extern "C" KUL_PUBLISH void maiken_module_destruct(maiken::Module* p) {
-  delete p;
-}
+extern "C" MKN_KUL_PUBLISH void maiken_module_destruct(maiken::Module* p) { delete p; }

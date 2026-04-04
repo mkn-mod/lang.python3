@@ -176,7 +176,8 @@ class Python3Module : public maiken::Module {
 void Python3Module::compile(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) {
   VALIDATE_NODE(node);
 
-  std::vector<std::string> incs{py_include()};
+  std::vector<std::string> incs{py_include(), kul::Dir{"include", python_exe.dir()}.escm()};
+
 
   try {
     if (node["with"]) {
@@ -197,8 +198,7 @@ void Python3Module::compile(maiken::Application& a, YAML::Node const& node) KTHR
       if (req_include) {
         a.addInclude(req_include.real());
         for (auto* rep : a.revendencies()) rep->addInclude(req_include.real());
-      } else
-        throw std::runtime_error("include doesn't exist: " + req_include.real());
+      }
     }
   } catch (kul::Exception const& e) {
     KERR << e.stack();
@@ -213,7 +213,6 @@ void Python3Module::link(maiken::Application& a, YAML::Node const& node) KTHROW(
   VALIDATE_NODE(node);
 
   auto const embed = kul::String::BOOL(kul::env::GET("MKN_PYTHON_LIB_EMBED", "0"));
-
   auto linker = py_cflags();
   auto const libpath = py_libdir();
   auto const prefx = py_prefix();
@@ -226,6 +225,10 @@ void Python3Module::link(maiken::Application& a, YAML::Node const& node) KTHROW(
         a.addLibpath(lib.real());
       }
     }
+
+  if (prefx.size())
+    if(auto const lib = kul::Dir{"libs", python_exe.dir()}) // windows fallback
+      a.addLibpath(lib.escm());
 
   if (embed) a.addLib(py_libname());
 

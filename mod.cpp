@@ -139,7 +139,7 @@ class Python3Module : public maiken::Module {
   std::string py_libname() const {
     return pyexec_for_string(
         "import sysconfig; lib=sysconfig.get_config_var('LDLIBRARY');"
-        "print(lib[3:-3] if lib.startswith('lib') and lib.endswith('.so') else lib)");
+        "print(lib[3:].split('.')[0] if lib.startswith('lib') else lib.split('.')[0])");
   }
   std::string py_prefix() const {
     return pyexec_for_string("import sysconfig; print(sysconfig.get_config_var('prefix'))");

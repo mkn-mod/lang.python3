@@ -7,6 +7,7 @@
 std::string const yArgs = "";
 
 int main(int argc, char* argv[]) {
+  KOUT(NON) << __FILE__;
   mkn::kul::Signal sig;
   try {
     YAML::Node node = mkn::kul::yaml::String(yArgs).root();

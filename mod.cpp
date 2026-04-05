@@ -176,8 +176,10 @@ class Python3Module : public maiken::Module {
 void Python3Module::compile(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) {
   VALIDATE_NODE(node);
 
-  std::vector<std::string> incs{py_include(), kul::Dir{"include", python_exe.dir()}.escm()};
-
+  std::vector<std::string> incs{py_include()};
+#if defined(_WIN32)  // or fallback
+  incs.push_back(kul::Dir{"include", python_exe.dir()}.escm());
+#endif
 
   try {
     if (node["with"]) {
@@ -226,9 +228,11 @@ void Python3Module::link(maiken::Application& a, YAML::Node const& node) KTHROW(
       }
     }
 
+#if defined(_WIN32)  // or fallback
   if (prefx.size())
-    if(auto const lib = kul::Dir{"libs", python_exe.dir()}) // windows fallback
+    if (auto const lib = kul::Dir{"libs", python_exe.dir()})  // windows fallback
       a.addLibpath(lib.escm());
+#endif
 
   if (embed) a.addLib(py_libname());
 

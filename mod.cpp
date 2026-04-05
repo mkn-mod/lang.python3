@@ -112,7 +112,10 @@ std::string pyexec_for_string(std::string const& cmd) {
     KERR << ex;
     throw;
   }
-  return kul::String::LINES(pc.outs())[0];  // DROP EOL
+  auto ret = kul::String::LINES(pc.outs())[0];
+  if(ret.back() == '\n') ret.pop_back();
+  if(ret.back() == '\r') ret.pop_back();
+  return ret;
 }
 
 class Python3Module : public maiken::Module {

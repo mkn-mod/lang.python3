@@ -220,13 +220,7 @@ void Python3Module::link(maiken::Application& a, YAML::Node const& node) KTHROW(
   auto const prefx = py_prefix();
 
   if (prefx.size())
-    if (auto const lib = kul::Dir(kul::Dir::JOIN(prefx, "lib"))) {
-      if (auto const needle = std::string{"-L" + lib.real()};
-          linker.find(needle) != std::string::npos) {
-        kul::String::REPLACE_ALL(linker, needle + " ", "");
-        a.addLibpath(lib.real());
-      }
-    }
+    if (auto const lib = kul::Dir(kul::Dir::JOIN(prefx, "lib"))) a.addLibpath(lib.real());
 
 #if defined(_WIN32)  // or fallback
   if (prefx.size())

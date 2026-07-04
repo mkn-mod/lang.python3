@@ -197,8 +197,8 @@ void Python3Module::compile(maiken::Application& a, YAML::Node const& node) KTHR
         incs.push_back(pyexec_for_string(import));
       }
     }
-    for (auto const inc : incs) {
-      kul::Dir req_include(inc);
+    for (auto const& inc : incs) {
+      kul::Dir const req_include(inc);
 
       if (req_include) {
         a.addInclude(req_include.real());

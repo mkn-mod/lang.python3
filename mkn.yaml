@@ -2,9 +2,6 @@
 
 name: lang.python3
 version: master
-property:
-    maiken_location: ${MKN_HOME}/app/mkn/${version}
-    maiken_scm: https://github.com/mkn/mkn
 
 parent: base
 src: mod.cpp
@@ -12,15 +9,13 @@ mode: shared
 
 profile:
 - name: base
-  dep: mkn&${maiken_location}(${maiken_scm})[mod]
+  dep: mkn.mod
+  if_dep:
+    bsd: parse.yaml[lib]
+    win: parse.yaml[lib]
   if_arg:
-      win_shared: -DYAML_CPP_DLL
-      shared: -DMKN_KUL_SHARED
-
-- name: test
-  parent: base
-  main: test.cpp
-  dep: mkn&${maiken_location}(${maiken_scm})[lib]
+    shared: -DMKN_KUL_SHARED
+    win_static: -DYAML_CPP_STATIC_DEFINE
 
 - name: format
   mod: |

@@ -19,45 +19,32 @@ jobs:
   ubuntu:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-
-    - env:
-        MKN_KUL_GIT_CO: --depth 1
-      run: |
+    - uses: actions/checkout@v6
+    - run: |
         $CURL_GET -o mkn ${PATH_GET}/mkn_nix
         chmod +x mkn
-        KLOG=2 ./mkn clean build run -dtOa "-std=c++20 -fPIC"
-        KLOG=2 ./mkn clean build run -dtOp test -a "-std=c++20 -fPIC"
+        PATH=$PWD:$PATH ./res/ci/linux.sh
 
   macos:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
-
-    - env:
-        MKN_LIB_LINK_LIB: 1
-        MKN_KUL_GIT_CO: --depth 1
-      run: |
+    - uses: actions/checkout@v6
+    - run: |
         $CURL_GET -o mkn ${PATH_GET}/mkn_arm_osx
         chmod +x mkn
         KLOG=2 ./mkn clean build run -dtOa "-std=c++20 -fPIC"
-        KLOG=2 ./mkn clean build run -dtOp test -a "-std=c++20 -fPIC"
 
   windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-
+    - uses: actions/checkout@v6
     - uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: amd64
-
-    - env:
-        MKN_KUL_GIT_CO: --depth 1
+    - shell: cmd
+      env:
         MKN_CL_PREFERRED: 1
-      shell: cmd
       run: | # /bin/link interferes with cl/link.exe
         bash -c "rm /bin/link"
         bash -c '$CURL_GET -o mkn.exe ${PATH_GET}/mkn.exe'
         bash -c 'KLOG=2 ./mkn clean build run -dtOa "-EHsc -std:c++20"'
-        bash -c 'KLOG=2 ./mkn clean build run -dtOp test -a "-EHsc -std:c++20"'

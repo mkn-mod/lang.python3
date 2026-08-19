@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2013, Philip Deegan.
+Copyright (c) 2026, Philip Deegan.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -28,31 +28,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "maiken/module/init.hpp"  // IWYU pragma: keep
-
-#include "maiken/app.hpp"       // for Application
-#include "maiken/compiler.hpp"  // for CompilationInfo, Mode
+#include "mkn/mod/init.hpp"  // IWYU pragma: keep
 
 #include "mkn/kul/os.hpp"      // for Dir, WHICH, PushDir
-#include "mkn/kul/cli.hpp"     // for EnvVar, EnvVarMode
-#include "mkn/kul/env.hpp"     // for GET, SET
+#include "mkn/kul/env.hpp"     // for GET, SET, Var, Var::Mode
 #include "mkn/kul/log.hpp"     // for KERR
 #include "mkn/kul/defs.hpp"    // for MKN_KUL_PUBLISH
 #include "mkn/kul/proc.hpp"    // for Process, ProcessCapture, AProcess
 #include "mkn/kul/yaml.hpp"    // for NodeValidator, Validator
-#include "maiken/project.hpp"  // for Project
 #include "mkn/kul/except.hpp"  // for Exception, KEXCEPT, KTHROW
 #include "mkn/kul/string.hpp"  // for String
 
 #include <string>     // for basic_string, string
 #include <vector>     // for vector
-#include <sstream>    // for stringstream
 #include <stdlib.h>   // for exit
 #include <exception>  // for exception
 #include <stdexcept>  // for exception
 
-namespace mkn {
-namespace lang {
+namespace mkn::lang {
 
 kul::File find_python3() KTHROW(std::exception) {
   std::string const HOME = kul::env::GET("PYTHON3_HOME");
@@ -83,8 +76,8 @@ kul::File find_python3() KTHROW(std::exception) {
   throw std::runtime_error("Could not find python!");
 }
 
-kul::cli::EnvVar python3_path_var(kul::File const& exe) {
-  return {"PATH", exe.dir().real(), kul::cli::EnvVarMode::PREP};
+kul::env::Var python3_path_var(kul::File const& exe) {
+  return {"PATH", exe.dir().real(), kul::env::Var::Mode::PREP};
 }
 
 kul::File find_python_set_env() {
@@ -113,15 +106,15 @@ std::string pyexec_for_string(std::string const& cmd) {
     throw;
   }
   auto ret = kul::String::LINES(pc.outs())[0];
-  if(ret.back() == '\n') ret.pop_back();
-  if(ret.back() == '\r') ret.pop_back();
+  if (ret.back() == '\n') ret.pop_back();
+  if (ret.back() == '\r') ret.pop_back();
   return ret;
 }
 
-class Python3Module : public maiken::Module {
+class Python3Module : public mkn::mod::Module {
  public:
-  void compile(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) override;
-  void link(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) override;
+  void compile(mkn::mod::Context& a, YAML::Node const& node) KTHROW(std::exception) override;
+  void link(mkn::mod::Context& a, YAML::Node const& node) KTHROW(std::exception) override;
 
  private:
   auto py_include() const {
@@ -176,7 +169,7 @@ class Python3Module : public maiken::Module {
   }
 };
 
-void Python3Module::compile(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) {
+void Python3Module::compile(mkn::mod::Context& a, YAML::Node const& node) KTHROW(std::exception) {
   VALIDATE_NODE(node);
 
   std::vector<std::string> incs{py_include()};
@@ -199,10 +192,10 @@ void Python3Module::compile(maiken::Application& a, YAML::Node const& node) KTHR
     }
     for (auto const& inc : incs) {
       kul::Dir const req_include(inc);
-
       if (req_include) {
-        a.addInclude(req_include.real());
-        for (auto* rep : a.revendencies()) rep->addInclude(req_include.real());
+        a.compilerState().add(mkn::mod::IncludeInput{req_include.real()});
+        for (auto* rep : a.state().dependents)
+          rep->compilerState().add(mkn::mod::IncludeInput{req_include.real()});
       }
     }
   } catch (kul::Exception const& e) {
@@ -214,7 +207,7 @@ void Python3Module::compile(maiken::Application& a, YAML::Node const& node) KTHR
   }
 }
 
-void Python3Module::link(maiken::Application& a, YAML::Node const& node) KTHROW(std::exception) {
+void Python3Module::link(mkn::mod::Context& a, YAML::Node const& node) KTHROW(std::exception) {
   VALIDATE_NODE(node);
 
   auto const embed = kul::String::BOOL(kul::env::GET("MKN_PYTHON_LIB_EMBED", "0"));
@@ -223,30 +216,25 @@ void Python3Module::link(maiken::Application& a, YAML::Node const& node) KTHROW(
   auto const prefx = py_prefix();
 
   if (prefx.size())
-    if (auto const lib = kul::Dir(kul::Dir::JOIN(prefx, "lib"))) a.addLibpath(lib.real());
+    if (auto const lib = kul::Dir(kul::Dir::JOIN(prefx, "lib")))
+      a.compilerState().add(mkn::mod::LibPathInput{lib.real()});
 
 #if defined(_WIN32)  // or fallback
   if (prefx.size())
     if (auto const lib = kul::Dir{"libs", python_exe.dir()})  // windows fallback
-      a.addLibpath(lib.escm());
+      a.compilerState().add(mkn::mod::LibPathInput{lib.escm()});
 #endif
 
-#if defined(_WIN32)  // or fallback
-  if (prefx.size())
-    if (auto const lib = kul::Dir{"libs", python_exe.dir()})  // windows fallback
-      a.addLibpath(lib.escm());
-#endif
+  if (embed) a.compilerState().add(mkn::mod::LibInput{py_libname()});
 
-  if (embed) a.addLib(py_libname());
-
-  if (a.mode() != maiken::compiler::Mode::STAT) a.prependLinkString(linker);
+  if (a.state().buildMode != mkn::mod::Mode::STAT)
+    a.compilerState().add(mkn::mod::LinkPrefixInput{linker});
 }
 
-}  // namespace lang
-}  // namespace mkn
+}  // namespace mkn::lang
 
-extern "C" MKN_KUL_PUBLISH maiken::Module* maiken_module_construct() {
+extern "C" MKN_KUL_PUBLISH mkn::mod::Module* maiken_module_construct() {
   return new mkn::lang::Python3Module;
 }
 
-extern "C" MKN_KUL_PUBLISH void maiken_module_destruct(maiken::Module* p) { delete p; }
+extern "C" MKN_KUL_PUBLISH void maiken_module_destruct(mkn::mod::Module* p) { delete p; }

@@ -10,9 +10,12 @@ mode: shared
 profile:
 - name: base
   dep: mkn.mod
+  if_dep:
+    bsd: parse.yaml[lib]
+    win: parse.yaml[lib]
   if_arg:
-      win_shared: -DYAML_CPP_DLL
-      shared: -DMKN_KUL_SHARED
+    shared: -DMKN_KUL_SHARED
+    win_static: -DYAML_CPP_STATIC_DEFINE
 
 - name: format
   mod: |

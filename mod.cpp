@@ -227,6 +227,11 @@ void Python3Module::link(mkn::mod::Context& a, YAML::Node const& node) KTHROW(st
 
   if (embed) a.compilerState().add(mkn::mod::LibInput{py_libname()});
 
+#if defined(__APPLE__)
+  if (!embed && a.state().buildMode != mkn::mod::Mode::STAT)
+    a.compilerState().add(mkn::mod::LinkPrefixInput{"-undefined dynamic_lookup"});
+#endif
+
   if (a.state().buildMode != mkn::mod::Mode::STAT)
     a.compilerState().add(mkn::mod::LinkPrefixInput{linker});
 }

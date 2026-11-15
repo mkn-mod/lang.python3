@@ -130,9 +130,12 @@ class Python3Module : public mkn::mod::Module {
   }
 
   std::string py_libname() const {
+    // python<LDVERSION> (e.g. 3.13, 3.13t), from sysconfig (python3-config is not always
+    //  installed): not the stable ABI stub libpython3, it defines none of the API. Windows has
+    //  no LDVERSION: python<major><minor> (python313.lib)
     return pyexec_for_string(
-        "import sysconfig; lib=sysconfig.get_config_var('LDLIBRARY');"
-        "print(lib[3:].split('.')[0] if lib.startswith('lib') else lib.split('.')[0])");
+        "import sys, sysconfig; v=sysconfig.get_config_var('LDVERSION');"
+        "print('python' + v if v else 'python{}{}'.format(*sys.version_info[:2]))");
   }
   std::string py_prefix() const {
     return pyexec_for_string("import sysconfig; print(sysconfig.get_config_var('prefix'))");

@@ -131,8 +131,11 @@ class Python3Module : public mkn::mod::Module {
 
   std::string py_libname() const {
     return pyexec_for_string(
-        "import sysconfig; lib=sysconfig.get_config_var('LDLIBRARY');"
-        "print(lib[3:].split('.')[0] if lib.startswith('lib') else lib.split('.')[0])");
+        // libpython3.13.so -> python3.13 (not python3: libpython3.so is the stable ABI stub,
+        //  its symbols are not linkable through it), python313.dll -> python313
+        "import re, sysconfig; lib=sysconfig.get_config_var('LDLIBRARY');"
+        "lib=lib[3:] if lib.startswith('lib') else lib;"
+        "print(re.sub(r'\\.(so|a|dylib|dll|lib)(\\..*)?$', '', lib))");
   }
   std::string py_prefix() const {
     return pyexec_for_string("import sysconfig; print(sysconfig.get_config_var('prefix'))");

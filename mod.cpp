@@ -29,13 +29,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "mkn/mod/init.hpp"  // IWYU pragma: keep
+#include "mkn/kul/bon.hpp"
 
 #include "mkn/kul/os.hpp"      // for Dir, WHICH, PushDir
 #include "mkn/kul/env.hpp"     // for GET, SET, Var, Var::Mode
 #include "mkn/kul/log.hpp"     // for KERR
 #include "mkn/kul/defs.hpp"    // for MKN_KUL_PUBLISH
 #include "mkn/kul/proc.hpp"    // for Process, ProcessCapture, AProcess
-#include "mkn/kul/yaml.hpp"    // for NodeValidator, Validator
 #include "mkn/kul/except.hpp"  // for Exception, KEXCEPT, KTHROW
 #include "mkn/kul/string.hpp"  // for String
 
@@ -113,8 +113,8 @@ std::string pyexec_for_string(std::string const& cmd) {
 
 class Python3Module : public mkn::mod::Module {
  public:
-  void compile(mkn::mod::Context& a, YAML::Node const& node) KTHROW(std::exception) override;
-  void link(mkn::mod::Context& a, YAML::Node const& node) KTHROW(std::exception) override;
+  void compile(mkn::mod::Context& a, mkn::mod::Node const& node) KTHROW(std::exception) override;
+  void link(mkn::mod::Context& a, mkn::mod::Node const& node) KTHROW(std::exception) override;
 
  private:
   auto py_include() const {
@@ -160,19 +160,12 @@ class Python3Module : public mkn::mod::Module {
     return version;
   }
 
-  static void VALIDATE_NODE(YAML::Node const& node) {
-    using namespace kul::yaml;
-    Validator({
-                  NodeValidator("args"),
-                  NodeValidator("delete"),
-                  NodeValidator("with"),
-                  NodeValidator("min"),
-              })
-        .validate(node);
+  static void VALIDATE_NODE(mkn::mod::Node const& node) {
+    mkn::kul::bon::validate(node, {"args", "delete", "with", "min"});
   }
 };
 
-void Python3Module::compile(mkn::mod::Context& a, YAML::Node const& node) KTHROW(std::exception) {
+void Python3Module::compile(mkn::mod::Context& a, mkn::mod::Node const& node) KTHROW(std::exception) {
   VALIDATE_NODE(node);
 
   std::vector<std::string> incs{py_include()};
@@ -181,8 +174,8 @@ void Python3Module::compile(mkn::mod::Context& a, YAML::Node const& node) KTHROW
 #endif
 
   try {
-    if (node["with"]) {
-      for (auto const& with : kul::cli::asArgs(node["with"].Scalar())) {
+    if (node.find("with")) {
+      for (auto const& with : kul::cli::asArgs(node["with"].str())) {
         // std::stringstream import;
         auto const import = std::string{"import "} + with + "; print(" + with + ".get_include())";
         // auto outs = pyexec_for_string(import);
@@ -210,7 +203,7 @@ void Python3Module::compile(mkn::mod::Context& a, YAML::Node const& node) KTHROW
   }
 }
 
-void Python3Module::link(mkn::mod::Context& a, YAML::Node const& node) KTHROW(std::exception) {
+void Python3Module::link(mkn::mod::Context& a, mkn::mod::Node const& node) KTHROW(std::exception) {
   VALIDATE_NODE(node);
 
   auto const embed = kul::String::BOOL(kul::env::GET("MKN_PYTHON_LIB_EMBED", "0"));

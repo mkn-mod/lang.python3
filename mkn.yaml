@@ -24,4 +24,4 @@ profile:
 
 - name: format
   mod: |
-    clang.format{init:{style: google, paths: .}}
+    clang.format#master{init:{style: google, paths: .}}

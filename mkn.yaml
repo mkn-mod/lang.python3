@@ -1,6 +1,11 @@
 #! clean build -g 0 -W 9 -O 9
 
 name: lang.python3
+property:
+  # dependency versions: master on master (not the default branch: mkn.mod's and parse.yaml's is
+  #  the rolling latest, whose mkn.kul differs from a master project's)
+  mkn.mod.version: master
+  parse.yaml.version: master
 version: master
 
 parent: base
@@ -9,10 +14,10 @@ mode: shared
 
 profile:
 - name: base
-  dep: mkn.mod
+  dep: mkn.mod#${mkn.mod.version}
   if_dep:
-    bsd: parse.yaml[lib]
-    win: parse.yaml[lib]
+    bsd: parse.yaml#${parse.yaml.version}[lib]
+    win: parse.yaml#${parse.yaml.version}[lib]
   if_arg:
     shared: -DMKN_KUL_SHARED
     win_static: -DYAML_CPP_STATIC_DEFINE

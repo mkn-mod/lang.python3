@@ -4,7 +4,7 @@ name: lang.python3
 property:
   # dependency versions: master on master (not the default branch: mkn.mod's is
   #  the rolling latest, whose mkn.kul differs from a master project's)
-  mkn.mod.version: master
+  mkn.mod.version: latest
 version: master
 
 parent: base
@@ -19,4 +19,4 @@ profile:
 
 - name: format
   mod: |
-    clang.format#master{init:{style: google, paths: .}}
+    clang.format#latest{init:{style: google, paths: .}}
